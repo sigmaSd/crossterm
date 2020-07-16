@@ -33,13 +33,27 @@ macro_rules! handle_command {
             if command.is_ansi_code_supported() {
                 write_ansi_code!($writer, command.ansi_code())
             } else {
-                command.execute_winapi().map_err($crate::ErrorKind::from)
+                command
+                    .execute_winapi($writer)
+                    .map_err($crate::ErrorKind::from)
             }
         }
         #[cfg(unix)]
         {
             write_ansi_code!($writer, $command.ansi_code())
         }
+    }};
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! handle_fmt_command {
+    ($writer:expr, $command:expr) => {{
+        // Silent warning when the macro is used inside the `command` module
+        #[allow(unused_imports)]
+        use $crate::{write_ansi_code, Command};
+        let command = $command;
+        write_ansi_code!($writer, command.ansi_code())
     }};
 }
 
@@ -160,7 +174,7 @@ macro_rules! impl_display {
     (for $($t:ty),+) => {
         $(impl ::std::fmt::Display for $t {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::result::Result<(), ::std::fmt::Error> {
-                $crate::queue!(f, self).map_err(|_| ::std::fmt::Error)
+                $crate::handle_fmt_command!(f, self).map_err(|_| ::std::fmt::Error)
             }
         })*
     }
@@ -312,7 +326,7 @@ mod tests {
                 self.value
             }
 
-            fn execute_winapi(&self) -> CrosstermResult<()> {
+            fn execute_winapi(&self, _writer: &mut dyn std::io::Write) -> CrosstermResult<()> {
                 self.stream.borrow_mut().push(self.value);
                 Ok(())
             }
