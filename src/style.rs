@@ -433,6 +433,8 @@ impl<T: Display + Clone> Command for Print<T> {
     #[cfg(windows)]
     fn execute_winapi(&self, writer: &mut dyn std::io::Write) -> Result<()> {
         write!(writer, "{}", self.0)?;
+        // winapi doesn't support queuing
+        writer.flush()?;
         Ok(())
     }
 }

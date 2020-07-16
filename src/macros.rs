@@ -49,8 +49,6 @@ macro_rules! handle_command {
 #[macro_export]
 macro_rules! handle_fmt_command {
     ($writer:expr, $command:expr) => {{
-        // Silent warning when the macro is used inside the `command` module
-        #[allow(unused_imports)]
         use $crate::{write_ansi_code, Command};
         let command = $command;
         write_ansi_code!($writer, command.ansi_code())
