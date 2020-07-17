@@ -129,7 +129,7 @@ where
     ///     Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
     ///     and [queue](./trait.QueueableCommand.html) for those old Windows versions.
     fn queue(&mut self, command: impl Command<AnsiType = A>) -> Result<&mut Self> {
-        queue!(self, command)?;
+        queue!(&mut *self, command)?;
         Ok(self)
     }
 }
@@ -180,7 +180,7 @@ where
     ///     Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
     ///     and [queue](./trait.QueueableCommand.html) for those old Windows versions.
     fn execute(&mut self, command: impl Command<AnsiType = A>) -> Result<&mut Self> {
-        execute!(self, command)?;
+        execute!(&mut *self, command)?;
         Ok(self)
     }
 }

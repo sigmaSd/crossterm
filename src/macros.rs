@@ -34,7 +34,7 @@ macro_rules! handle_command {
                 write_ansi_code!($writer, command.ansi_code())
             } else {
                 command
-                    .execute_winapi($writer)
+                    .execute_winapi(&mut $writer)
                     .map_err($crate::ErrorKind::from)
             }
         }
