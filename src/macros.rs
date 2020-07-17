@@ -50,8 +50,24 @@ macro_rules! handle_command {
 macro_rules! handle_fmt_command {
     ($writer:expr, $command:expr) => {{
         use $crate::{write_ansi_code, Command};
-        let command = $command;
-        write_ansi_code!($writer, command.ansi_code())
+
+        #[cfg(windows)]
+        {
+            let command = $command;
+            if command.is_ansi_code_supported() {
+                write_ansi_code!($writer, command.ansi_code())
+            } else {
+                command
+                    // $writer is not used in execute_winapi when called from handle_fmt_command macro
+                    // we give it stdout() as place holder to satisfy the type requirement
+                    .execute_winapi(&mut std::io::stdout())
+                    .map_err($crate::ErrorKind::from)
+            }
+        }
+        #[cfg(unix)]
+        {
+            write_ansi_code!($writer, $command.ansi_code())
+        }
     }};
 }
 
