@@ -3,11 +3,40 @@ use std::ops::{BitAnd, BitOr, BitXor};
 
 /// a bitset for all possible attributes
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-pub struct Attributes(u32);
+pub struct Attributes {
+    bytes: u32,
+    idx: u32,
+}
+
+impl Iterator for Attributes {
+    type Item = Attribute;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let len = 32 - self.bytes.leading_zeros();
+        if self.idx >= len {
+            return None;
+        }
+        let mut has_it = self.bytes & (1u32 << (self.idx + 1));
+        while has_it == 0 {
+            self.idx += 1;
+            if self.idx >= len {
+                return None;
+            }
+            has_it = self.bytes & (1u32 << (self.idx + 1));
+        }
+
+        let res = Attribute::iterator().nth(self.idx as usize).unwrap();
+        self.idx += 1;
+        Some(res)
+    }
+}
 
 impl From<Attribute> for Attributes {
     fn from(attribute: Attribute) -> Self {
-        Self(attribute.bytes())
+        Self {
+            bytes: attribute.bytes(),
+            idx: 0,
+        }
     }
 }
 
@@ -24,39 +53,57 @@ impl From<&[Attribute]> for Attributes {
 impl BitAnd<Attribute> for Attributes {
     type Output = Self;
     fn bitand(self, rhs: Attribute) -> Self {
-        Self(self.0 & rhs.bytes())
+        Self {
+            bytes: self.bytes & rhs.bytes(),
+            idx: 0,
+        }
     }
 }
 impl BitAnd for Attributes {
     type Output = Self;
     fn bitand(self, rhs: Self) -> Self {
-        Self(self.0 & rhs.0)
+        Self {
+            bytes: self.bytes & rhs.bytes,
+            idx: 0,
+        }
     }
 }
 
 impl BitOr<Attribute> for Attributes {
     type Output = Self;
     fn bitor(self, rhs: Attribute) -> Self {
-        Self(self.0 | rhs.bytes())
+        Self {
+            bytes: self.bytes | rhs.bytes(),
+            idx: 0,
+        }
     }
 }
 impl BitOr for Attributes {
     type Output = Self;
     fn bitor(self, rhs: Self) -> Self {
-        Self(self.0 | rhs.0)
+        Self {
+            bytes: self.bytes | rhs.bytes,
+            idx: 0,
+        }
     }
 }
 
 impl BitXor<Attribute> for Attributes {
     type Output = Self;
     fn bitxor(self, rhs: Attribute) -> Self {
-        Self(self.0 ^ rhs.bytes())
+        Self {
+            bytes: self.bytes ^ rhs.bytes(),
+            idx: 0,
+        }
     }
 }
 impl BitXor for Attributes {
     type Output = Self;
     fn bitxor(self, rhs: Self) -> Self {
-        Self(self.0 ^ rhs.0)
+        Self {
+            bytes: self.bytes ^ rhs.bytes,
+            idx: 0,
+        }
     }
 }
 
@@ -65,39 +112,39 @@ impl Attributes {
     /// If it's already set, this does nothing.
     #[inline(always)]
     pub fn set(&mut self, attribute: Attribute) {
-        self.0 |= attribute.bytes();
+        self.bytes |= attribute.bytes();
     }
 
     /// Unsets the attribute.
     /// If it's not set, this changes nothing.
     #[inline(always)]
     pub fn unset(&mut self, attribute: Attribute) {
-        self.0 &= !attribute.bytes();
+        self.bytes &= !attribute.bytes();
     }
 
     /// Sets the attribute if it's unset, unset it
     /// if it is set.
     #[inline(always)]
     pub fn toggle(&mut self, attribute: Attribute) {
-        self.0 ^= attribute.bytes();
+        self.bytes ^= attribute.bytes();
     }
 
     /// Returns whether the attribute is set.
     #[inline(always)]
     pub fn has(self, attribute: Attribute) -> bool {
-        self.0 & attribute.bytes() != 0
+        self.bytes & attribute.bytes() != 0
     }
 
     /// Sets all the passed attributes. Removes none.
     #[inline(always)]
     pub fn extend(&mut self, attributes: Attributes) {
-        self.0 |= attributes.0;
+        self.bytes |= attributes.bytes;
     }
 
     /// Returns whether there is no attribute set.
     #[inline(always)]
     pub fn is_empty(self) -> bool {
-        self.0 == 0
+        self.bytes == 0
     }
 }
 
