@@ -58,28 +58,37 @@ pub(crate) mod sys;
 ///
 /// * Top left cell is represented as `0,0`.
 /// * Commands must be executed/queued for execution otherwise they do nothing.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct MoveTo(pub u16, pub u16);
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MoveTo(String);
+impl MoveTo {
+    pub fn new(x: u16, y:u16) -> Self {
+        Self(format!("\x1B[{};{}H",y +1 ,x + 1))
+    }
+
+    pub fn ansi_code(&self) -> &str {
+        &self.0
+    }
+}
 
 impl fmt::Display for Ansi<MoveTo> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        ansi::move_to_csi_sequence(f, (self.0).0, (self.0).1)
+        ansi::move_to_csi_sequence(f, &self.0.0)
     }
 }
 
-impl Command for MoveTo {
-    type AnsiType = Ansi<Self>;
+// impl Command for MoveTo {
+//     type AnsiType = Ansi<&str>;
 
-    #[inline]
-    fn ansi_code(&self) -> Self::AnsiType {
-        Ansi(*self)
-    }
+//     #[inline]
+//     fn ansi_code(&self) -> Self::AnsiType {
+//         Ansi(self.0)
+//     }
 
-    #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
-        sys::move_to(self.0, self.1)
-    }
-}
+//     #[cfg(windows)]
+//     fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+//         sys::move_to(self.0, self.1)
+//     }
+// }
 
 /// A command that moves the terminal cursor up the given number of lines,
 /// and moves it to the first column.

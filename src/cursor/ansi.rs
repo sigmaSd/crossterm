@@ -3,8 +3,9 @@
 use crate::csi;
 use std::fmt::{self, Formatter};
 
-pub(crate) fn move_to_csi_sequence(f: &mut Formatter, x: u16, y: u16) -> fmt::Result {
-    write!(f, csi!("{};{}H"), y + 1, x + 1)
+pub(crate) fn move_to_csi_sequence(f: &mut Formatter, pos: &str) -> fmt::Result {
+	//write!(f, "\x1B[0;0H")
+    write!(f, "{}", pos)
 }
 
 pub(crate) fn move_up_csi_sequence(f: &mut Formatter, count: u16) -> fmt::Result {
