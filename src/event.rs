@@ -191,7 +191,7 @@ pub fn read() -> Result<Event> {
     }
 }
 
-/// Polls to check if there are any `InternalEvent`s that can be read withing the given duration.
+/// Polls to check if there are any `InternalEvent`s that can be read within the given duration.
 pub(crate) fn poll_internal<F>(timeout: Option<Duration>, filter: &F) -> Result<bool>
 where
     F: Filter,
@@ -224,7 +224,7 @@ where
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EnableMouseCapture;
 
-impl Command for EnableMouseCapture {
+impl Command<'_> for EnableMouseCapture {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -232,7 +232,7 @@ impl Command for EnableMouseCapture {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: &mut dyn std::io::Write) -> Result<()> {
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
         sys::windows::enable_mouse_capture()
     }
 
@@ -248,7 +248,7 @@ impl Command for EnableMouseCapture {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DisableMouseCapture;
 
-impl Command for DisableMouseCapture {
+impl Command<'_> for DisableMouseCapture {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -256,7 +256,7 @@ impl Command for DisableMouseCapture {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: &mut dyn std::io::Write) -> Result<()> {
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
         sys::windows::disable_mouse_capture()
     }
 

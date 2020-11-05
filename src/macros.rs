@@ -34,7 +34,12 @@ macro_rules! handle_command {
                 write_ansi_code!($writer, command.ansi_code())
             } else {
                 command
-                    .execute_winapi(&mut $writer)
+                    .execute_winapi(|| {
+                        write!($writer, "{}", command.ansi_code())?;
+                        // winapi doesn't support queuing
+                        $writer.flush()?;
+                        Ok(())
+                    })
                     .map_err($crate::ErrorKind::from)
             }
         }
@@ -45,6 +50,8 @@ macro_rules! handle_command {
     }};
 }
 
+// Offer the same functionality as queue! macro, but is used only internally and with std::fmt::Write as $writer
+// The difference is in case of winapi we ignore the $writer and use a fake one
 #[doc(hidden)]
 #[macro_export]
 macro_rules! handle_fmt_command {
@@ -58,9 +65,7 @@ macro_rules! handle_fmt_command {
                 write_ansi_code!($writer, command.ansi_code())
             } else {
                 command
-                    // $writer is not used in execute_winapi when called from handle_fmt_command macro
-                    // we give it stdout() as place holder to satisfy the type requirement
-                    .execute_winapi(&mut std::io::stdout())
+                    .execute_winapi(|| panic!("this writer should not be possible to use here"))
                     .map_err($crate::ErrorKind::from)
             }
         }
@@ -241,7 +246,7 @@ mod tests {
 
         pub struct FakeCommand;
 
-        impl Command for FakeCommand {
+        impl Command<'_> for FakeCommand {
             type AnsiType = &'static str;
 
             fn ansi_code(&self) -> Self::AnsiType {
@@ -340,7 +345,10 @@ mod tests {
                 self.value
             }
 
-            fn execute_winapi(&self, _writer: &mut dyn std::io::Write) -> CrosstermResult<()> {
+            fn execute_winapi(
+                &self,
+                _writer: impl FnMut() -> CrosstermResult<()>,
+            ) -> CrosstermResult<()> {
                 self.stream.borrow_mut().push(self.value);
                 Ok(())
             }
