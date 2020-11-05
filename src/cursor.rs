@@ -67,7 +67,7 @@ impl fmt::Display for Ansi<MoveTo> {
     }
 }
 
-impl Command for MoveTo {
+impl Command<'_> for MoveTo {
     type AnsiType = Ansi<Self>;
 
     #[inline]
@@ -96,7 +96,7 @@ impl fmt::Display for Ansi<MoveToNextLine> {
     }
 }
 
-impl Command for MoveToNextLine {
+impl Command<'_> for MoveToNextLine {
     type AnsiType = Ansi<Self>;
 
     #[inline]
@@ -125,7 +125,7 @@ impl fmt::Display for Ansi<MoveToPreviousLine> {
     }
 }
 
-impl Command for MoveToPreviousLine {
+impl Command<'_> for MoveToPreviousLine {
     type AnsiType = Ansi<Self>;
 
     #[inline]
@@ -153,7 +153,7 @@ impl fmt::Display for Ansi<MoveToColumn> {
     }
 }
 
-impl Command for MoveToColumn {
+impl Command<'_> for MoveToColumn {
     type AnsiType = Ansi<Self>;
 
     #[inline]
@@ -181,7 +181,7 @@ impl fmt::Display for Ansi<MoveUp> {
     }
 }
 
-impl Command for MoveUp {
+impl Command<'_> for MoveUp {
     type AnsiType = Ansi<Self>;
 
     #[inline]
@@ -209,7 +209,7 @@ impl fmt::Display for Ansi<MoveRight> {
     }
 }
 
-impl Command for MoveRight {
+impl Command<'_> for MoveRight {
     type AnsiType = Ansi<Self>;
 
     #[inline]
@@ -237,7 +237,7 @@ impl fmt::Display for Ansi<MoveDown> {
     }
 }
 
-impl Command for MoveDown {
+impl Command<'_> for MoveDown {
     type AnsiType = Ansi<Self>;
 
     #[inline]
@@ -265,7 +265,7 @@ impl fmt::Display for Ansi<MoveLeft> {
     }
 }
 
-impl Command for MoveLeft {
+impl Command<'_> for MoveLeft {
     type AnsiType = Ansi<Self>;
 
     #[inline]
@@ -290,7 +290,7 @@ impl Command for MoveLeft {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SavePosition;
 
-impl Command for SavePosition {
+impl Command<'_> for SavePosition {
     type AnsiType = &'static str;
 
     #[inline]
@@ -315,7 +315,7 @@ impl Command for SavePosition {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct RestorePosition;
 
-impl Command for RestorePosition {
+impl Command<'_> for RestorePosition {
     type AnsiType = &'static str;
 
     #[inline]
@@ -337,7 +337,7 @@ impl Command for RestorePosition {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Hide;
 
-impl Command for Hide {
+impl Command<'_> for Hide {
     type AnsiType = &'static str;
 
     #[inline]
@@ -359,7 +359,7 @@ impl Command for Hide {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Show;
 
-impl Command for Show {
+impl Command<'_> for Show {
     type AnsiType = &'static str;
 
     #[inline]
@@ -382,7 +382,7 @@ impl Command for Show {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EnableBlinking;
 
-impl Command for EnableBlinking {
+impl Command<'_> for EnableBlinking {
     type AnsiType = &'static str;
 
     #[inline]
@@ -405,7 +405,7 @@ impl Command for EnableBlinking {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DisableBlinking;
 
-impl Command for DisableBlinking {
+impl Command<'_> for DisableBlinking {
     type AnsiType = &'static str;
 
     #[inline]

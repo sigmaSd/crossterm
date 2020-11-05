@@ -10,7 +10,7 @@ use super::error::Result;
 /// and there is no immediate reason to implement a command yourself.
 /// In order to understand how to use and execute commands,
 /// it is recommended that you take a look at [Command Api](../#command-api) chapter.
-pub trait Command {
+pub trait Command<'a> {
     type AnsiType: Display;
 
     /// Returns an ANSI code representation of this command.
@@ -18,7 +18,7 @@ pub trait Command {
     /// However, only Windows 10 and UNIX systems support this.
     ///
     /// This method does not need to be accessed manually, as it is used by the crossterm's [Command Api](../#command-api)
-    fn ansi_code(&self) -> Self::AnsiType;
+    fn ansi_code(&'a self) -> Self::AnsiType;
 
     /// Execute this command.
     ///
@@ -39,11 +39,11 @@ pub trait Command {
     }
 }
 
-impl<T: Command> Command for &T {
+impl<'a, T: Command<'a>> Command<'a> for &T {
     type AnsiType = T::AnsiType;
 
     #[inline]
-    fn ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&'a self) -> Self::AnsiType {
         T::ansi_code(self)
     }
 
@@ -61,18 +61,18 @@ impl<T: Command> Command for &T {
 }
 
 /// An interface for commands that can be queued for further execution.
-pub trait QueueableCommand<T: Display>: Sized {
+pub trait QueueableCommand<'a, T: Display>: Sized {
     /// Queues the given command for further execution.
-    fn queue(&mut self, command: impl Command<AnsiType = T>) -> Result<&mut Self>;
+    fn queue(&mut self, command: impl Command<'a, AnsiType = T>) -> Result<&mut Self>;
 }
 
 /// An interface for commands that are directly executed.
-pub trait ExecutableCommand<T: Display>: Sized {
+pub trait ExecutableCommand<'a, T: Display>: Sized {
     /// Executes the given command directly.
-    fn execute(&mut self, command: impl Command<AnsiType = T>) -> Result<&mut Self>;
+    fn execute(&mut self, command: impl Command<'a, AnsiType = T> +'a) -> Result<&mut Self>;
 }
 
-impl<T, A> QueueableCommand<A> for T
+impl<'a, T, A> QueueableCommand<'a, A> for T
 where
     A: Display,
     T: Write,
@@ -128,13 +128,13 @@ where
     ///     and can therefore not be written to the given `writer`.
     ///     Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
     ///     and [queue](./trait.QueueableCommand.html) for those old Windows versions.
-    fn queue(&mut self, command: impl Command<AnsiType = A>) -> Result<&mut Self> {
-        queue!(self, command)?;
+    fn queue(&mut self, command: impl Command<'a, AnsiType = A>) -> Result<&mut Self> {
+        //queue!(self, command)?;
         Ok(self)
     }
 }
 
-impl<T, A> ExecutableCommand<A> for T
+impl<'a, T, A> ExecutableCommand<'a, A> for T
 where
     A: Display,
     T: Write,
@@ -179,8 +179,8 @@ where
     ///     and can therefore not be written to the given `writer`.
     ///     Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
     ///     and [queue](./trait.QueueableCommand.html) for those old Windows versions.
-    fn execute(&mut self, command: impl Command<AnsiType = A>) -> Result<&mut Self> {
-        execute!(self, command)?;
+    fn execute(&mut self, command: impl Command<'a, AnsiType = A> +'a) -> Result<&mut Self> {
+        //execute!(self, command)?;
         Ok(self)
     }
 }

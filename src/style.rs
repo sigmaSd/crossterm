@@ -207,7 +207,7 @@ impl fmt::Display for Ansi<SetForegroundColor> {
     }
 }
 
-impl Command for SetForegroundColor {
+impl Command<'_> for SetForegroundColor {
     type AnsiType = Ansi<Self>;
 
     #[inline]
@@ -240,7 +240,7 @@ impl fmt::Display for Ansi<SetBackgroundColor> {
     }
 }
 
-impl Command for SetBackgroundColor {
+impl Command<'_> for SetBackgroundColor {
     type AnsiType = Ansi<Self>;
 
     #[inline]
@@ -289,7 +289,7 @@ impl fmt::Display for Ansi<SetColors> {
     }
 }
 
-impl Command for SetColors {
+impl Command<'_> for SetColors {
     type AnsiType = Ansi<Self>;
 
     #[inline]
@@ -325,7 +325,7 @@ impl fmt::Display for Ansi<SetAttribute> {
     }
 }
 
-impl Command for SetAttribute {
+impl Command<'_> for SetAttribute {
     type AnsiType = Ansi<Self>;
 
     #[inline]
@@ -356,7 +356,7 @@ impl fmt::Display for Ansi<SetAttributes> {
     }
 }
 
-impl Command for SetAttributes {
+impl Command<'_> for SetAttributes {
     type AnsiType = Ansi<Self>;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -377,17 +377,17 @@ impl Command for SetAttributes {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-#[derive(Debug, Copy, Clone)]
-pub struct PrintStyledContent<D: Display + Clone>(pub StyledContent<D>);
+#[derive(Debug)]
+pub struct PrintStyledContent<D: Display>(pub StyledContent<D>);
 
-impl<D> Command for PrintStyledContent<D>
+impl<'a, D: 'a> Command<'a> for PrintStyledContent<D>
 where
-    D: Display + Clone,
+    D: Display,
 {
-    type AnsiType = StyledContent<D>;
+    type AnsiType = &'a StyledContent<D>;
 
-    fn ansi_code(&self) -> Self::AnsiType {
-        self.0.clone()
+    fn ansi_code(&'a self) -> Self::AnsiType {
+        &self.0
     }
 
     #[cfg(windows)]
@@ -404,7 +404,7 @@ where
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ResetColor;
 
-impl Command for ResetColor {
+impl Command<'_> for ResetColor {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -420,14 +420,14 @@ impl Command for ResetColor {
 /// A command that prints the given displayable type.
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Print<T: Display + Clone>(pub T);
+#[derive(Debug, PartialEq, Eq)]
+pub struct Print<T: Display>(pub T);
 
-impl<T: Display + Clone> Command for Print<T> {
-    type AnsiType = T;
+impl<'a, T: Display +'a> Command<'a> for Print<T> {
+    type AnsiType = &'a T;
 
-    fn ansi_code(&self) -> Self::AnsiType {
-        self.0.clone()
+    fn ansi_code(&'a self) -> Self::AnsiType {
+        &self.0
     }
 
     #[cfg(windows)]
@@ -437,7 +437,7 @@ impl<T: Display + Clone> Command for Print<T> {
     }
 }
 
-impl<T: Display + Clone> Display for Print<T> {
+impl<T: Display> Display for Print<T> {
     fn fmt(
         &self,
         f: &mut ::std::fmt::Formatter<'_>,

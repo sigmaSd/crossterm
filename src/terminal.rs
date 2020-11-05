@@ -120,7 +120,7 @@ pub fn size() -> Result<(u16, u16)> {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DisableLineWrap;
 
-impl Command for DisableLineWrap {
+impl Command<'_> for DisableLineWrap {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -141,7 +141,7 @@ impl Command for DisableLineWrap {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EnableLineWrap;
 
-impl Command for EnableLineWrap {
+impl Command<'_> for EnableLineWrap {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -183,7 +183,7 @@ impl Command for EnableLineWrap {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EnterAlternateScreen;
 
-impl Command for EnterAlternateScreen {
+impl Command<'_> for EnterAlternateScreen {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -223,7 +223,7 @@ impl Command for EnterAlternateScreen {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct LeaveAlternateScreen;
 
-impl Command for LeaveAlternateScreen {
+impl Command<'_> for LeaveAlternateScreen {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -262,7 +262,7 @@ pub enum ClearType {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ScrollUp(pub u16);
 
-impl Command for ScrollUp {
+impl Command<'_> for ScrollUp {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -283,7 +283,7 @@ impl Command for ScrollUp {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ScrollDown(pub u16);
 
-impl Command for ScrollDown {
+impl Command<'_> for ScrollDown {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -306,7 +306,7 @@ impl Command for ScrollDown {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Clear(pub ClearType);
 
-impl Command for Clear {
+impl Command<'_> for Clear {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -333,7 +333,7 @@ impl Command for Clear {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetSize(pub u16, pub u16);
 
-impl Command for SetSize {
+impl Command<'_> for SetSize {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -354,7 +354,7 @@ impl Command for SetSize {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetTitle<'a>(pub &'a str);
 
-impl<'a> Command for SetTitle<'a> {
+impl<'a> Command<'_> for SetTitle<'a> {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {

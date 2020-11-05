@@ -224,7 +224,7 @@ where
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EnableMouseCapture;
 
-impl Command for EnableMouseCapture {
+impl Command<'_> for EnableMouseCapture {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -248,7 +248,7 @@ impl Command for EnableMouseCapture {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DisableMouseCapture;
 
-impl Command for DisableMouseCapture {
+impl Command<'_> for DisableMouseCapture {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {

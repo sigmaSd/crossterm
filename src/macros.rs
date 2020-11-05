@@ -246,7 +246,7 @@ mod tests {
 
         pub struct FakeCommand;
 
-        impl Command for FakeCommand {
+        impl Command<'_> for FakeCommand {
             type AnsiType = &'static str;
 
             fn ansi_code(&self) -> Self::AnsiType {
